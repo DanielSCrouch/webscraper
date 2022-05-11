@@ -79,7 +79,7 @@ func TestParseAttributes(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	attrs, err := htmlScraper.ParseAttributes("href")
+	attrs, err := htmlScraper.ParseAttributes("href", "a")
 	if err != nil {
 		t.Fatal(err)
 	}

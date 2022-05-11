@@ -70,14 +70,13 @@ func (s *scraper) Dump() []byte {
 
 // ParseAttributes - returns a list of all attributes filtered by key
 // Copied from https://pkg.go.dev/golang.org/x/net@v0.0.0-20220425223048-2871e0cb64e4/html#Parse
-func (s *scraper) ParseAttributes(key string) (attrs []string, err error) {
+func (s *scraper) ParseAttributes(key string, elemFilter string) (attrs []string, err error) {
 
 	var f func(*html.Node)
 	f = func(n *html.Node) {
 		if n.Type == html.ElementNode {
 			for _, a := range n.Attr {
-				if a.Key == key {
-					// fmt.Println(a.Val)
+				if a.Key == key && n.Data == elemFilter {
 					attrs = append(attrs, a.Val)
 					break
 				}
