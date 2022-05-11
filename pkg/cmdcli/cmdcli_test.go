@@ -1,5 +1,10 @@
 package cmdcli
 
+import (
+	"fmt"
+	"testing"
+)
+
 func TestCLI(t *testing.T) {
-	fmt.println("test cli")
+	fmt.Println("test cli")
 }

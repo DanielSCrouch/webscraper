@@ -1,5 +1,10 @@
 package scraper
 
+import (
+	"fmt"
+	"testing"
+)
+
 func TestScraper(t *testing.T) {
-	fmt.println("test scraper")
+	fmt.Println("test scraper")
 }
