@@ -63,23 +63,31 @@ func (s *scraper) parseData() (err error) {
 	return nil
 }
 
-// // parseHTML - process raw web page body into html format
-// func (s *scraper) parseHTML() (err error) {
+// Dump - returns raw bytes body response
+func (s *scraper) Dump() []byte {
+	return s.rawBodyData
+}
 
-// 	var f func(*html.Node)
-// 	f = func(n *html.Node) {
-// 		if n.Type == html.ElementNode && n.Data == "a" {
-// 			for _, a := range n.Attr {
-// 				if a.Key == "href" {
-// 					fmt.Println(a.Val)
-// 					break
-// 				}
-// 			}
-// 		}
-// 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-// 			f(c)
-// 		}
-// 	}
-// 	f(doc)
+// ParseAttributes - returns a list of all attributes filtered by key
+// Copied from https://pkg.go.dev/golang.org/x/net@v0.0.0-20220425223048-2871e0cb64e4/html#Parse
+func (s *scraper) ParseAttributes(key string) (attrs []string, err error) {
 
-// }
+	var f func(*html.Node)
+	f = func(n *html.Node) {
+		if n.Type == html.ElementNode {
+			for _, a := range n.Attr {
+				if a.Key == key {
+					// fmt.Println(a.Val)
+					attrs = append(attrs, a.Val)
+					break
+				}
+			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			f(c)
+		}
+	}
+	f(s.parsedHTMLData)
+
+	return attrs, nil
+}

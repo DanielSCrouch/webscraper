@@ -8,12 +8,12 @@ import (
 
 var testHTMLResp string = `<!DOCTYPE html>
 <html>
-<a href="http://www.google.com">Google</a>
-<body>
-	<p>
-	<a href="http://www.duckduckgo.com">DuckDuckGo</a>
-	</p>
-</body>
+	<a href="http://www.google.com">Google</a>
+	<body>
+		<p>
+		<a 	href="http://www.duckduckgo.com">DuckDuckGo</a>
+		</p>
+	</body>
 </html>`
 
 // RunTestHTTPServer - runs a simple test server on localhost
@@ -23,12 +23,14 @@ func RunTestHTTPServer(t *testing.T) (endpoint string) {
 	t.Helper()
 	port := 8090
 
-	http.HandleFunc("/test", httpTestServerEndpoint)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/test", httpTestServerEndpoint)
+	// http.HandleFunc("/test", httpTestServerEndpoint)
 	// go http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 
 	srv := &http.Server{
-		Addr: fmt.Sprintf(":%d", port),
-		// Handler: router,
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: mux,
 	}
 
 	go func() {
@@ -63,27 +65,38 @@ func TestScraper(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if string(htmlScraper.rawBodyData) != testHTMLResp {
+	if string(htmlScraper.Dump()) != testHTMLResp {
 		t.Error("expected body resp does not match actual")
 	}
 }
 
-// func TestHTMLParse(t *testing.T) {
-// 	endpoint := RunTestHTTPServer(t)
-// 	htmlScraper := NewScraper(WebPageFormat("html"))
+func TestParseAttributes(t *testing.T) {
+	endpoint := RunTestHTTPServer(t)
+	htmlScraper := NewScraper(WebPageFormat("html"))
 
-// 	err := htmlScraper.Scrape(endpoint)
-// 	if err != nil {
-// 		t.Fatal(err)
-// 	}
+	err := htmlScraper.Scrape(endpoint)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// 	fmt.Println(htmlScraper.parsedHTMLData.FirstChild.Data)
+	attrs, err := htmlScraper.ParseAttributes("href")
+	if err != nil {
+		t.Fatal(err)
+	}
 
-// if htmlScraper.parsedHTMLData.Type == html.ElementNode && htmlScraper.parsedHTMLData.Data == "a" {
-// 	// Do something with n...
-// }
-// for c := n.FirstChild; c != nil; c = c.NextSibling {
-// 	f(c)
-// }
+	if len(attrs) != 2 {
+		t.Fatalf("identified %d of 2 attributes", len(attrs))
+	}
 
-// }
+	// TODO: Assert incorrectly assumes order is maintained in implementation
+	exp := "http://www.google.com"
+	if attrs[0] != exp {
+		t.Fatalf("expected first attribute %s received %s", exp, attrs[0])
+	}
+
+	exp = "http://www.duckduckgo.com"
+	if attrs[1] != exp {
+		t.Fatalf("expected first attribute %s received %s", exp, attrs[1])
+	}
+
+}
