@@ -14,3 +14,9 @@
 # Added by Vidsy developers
 vendor/
 web-crawler
+
+# MacOS
+.DS_Store
+
+# VSCode
+.vscode
